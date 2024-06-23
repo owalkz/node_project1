@@ -1,44 +1,58 @@
-const User = require('../model/User');
+const User = require('../model/userModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 exports.register = async (req, res, next) => {
-    const {first_name, last_name, email, password} = req.body
-    if (!first_name || !last_name || !email || !password) {
+    const { username, email, password, user_type, user_data = {} } = req.body;
+    if (!username || !email || !password || !user_type || !user_data) {
         return res.status(400).json({message: 'All fields are required'});
     }
     if (password.length < 8) {
-        return res.status(400).json({message: 'Password must be at least 8 characters long'})
+        return res.status(400).json({message: 'Password must be at least 8 characters long'});
     }
-    const email_exists = User.findOne({email});
+    const email_exists = await User.findOne({email});
     if (email_exists) {
         return res.status(400).json({message: 'Email already exists'});
     }
-    try {
-        bcrypt.hash(password, 10, async (err, hash) => {
-            if (err) {
-                return res.status(500).json({error: err.message})
-            }
-            await User.create({
+    const hashedPassword = await bcrypt.hash(password, 10);
+    if (user_type === 'individual') {
+        const { first_name, last_name } = user_data[0];
+        const user = User.create({
+            username,
+            email,
+            password: hashedPassword,
+            user_type,
+            user_data: {
                 first_name,
-                last_name,
-                email,
-                password: hash
-            }).then(user =>
-                res.status(200).json({
-                    message: "User successfully created",
-                    first_name: user.first_name,
-                    last_name: user.last_name,
-                    email: user.email
-                })
-            )
-        })
-    } catch (err) {
-        console.log(err);
-        res.status(401).json({
-            message: "User creation not successful",
-            error: err.message,
-        })
+                last_name
+            }
+        });
+        return res.status(201).json({
+            message: 'User created successfully',
+            first_name,
+            last_name,
+            username,
+            email,
+            user_type
+        });
+    } else if (user_type === 'business') {
+        const { business_name } = user_data[0];
+        const user = User.create({
+            username,
+            email,
+            password: hashedPassword,
+            user_type,
+            user_data: {
+                business_name,
+            }
+        });
+        return res.status(201).json({
+            message: 'User created successfully',
+            business_name,
+            username,
+            email,
+            user_type
+        });
     }
 }
 
@@ -61,7 +75,8 @@ exports.login = async (req, res, next) => {
             }
             const userObject = {
                 email: user.email,
-                _id: user._id
+                _id: user._id,
+                user_type: user.user_type,
             }
             const token = jwt.sign(userObject, process.env.JWT_SECRET, {expiresIn: '1h'});
             res.status(200).json({message: 'Login successful', token: token, user: userObject});
