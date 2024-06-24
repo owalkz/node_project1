@@ -7,8 +7,10 @@ connectDB();
 app.listen(PORT, () => console.log('Server connected to port ${PORT}'));
 
 process.on("UnhandledRejection", err => {
-    console.log('An error occurred: ${err.message}')
-    server.close(() => process.exit(1))
+    console.log('An error occurred: ${err.message}');
+    server.close(() => process.exit(1));
 })
 
-app.use("/api/auth", require("./Auth/Route"))
+app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/users", require("./routes/userRoutes"));
+app.use("/api/freelancer", require("./routes/freelancerRoutes"));

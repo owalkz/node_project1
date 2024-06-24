@@ -2,6 +2,9 @@ const User = require('../model/userModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+// Description: This function registers a new user
+// Route: POST /api/auth/register
+// Access: Public
 exports.register = async (req, res, next) => {
     const { username, email, password, user_type, user_data = {} } = req.body;
     if (!username || !email || !password || !user_type || !user_data) {
@@ -56,6 +59,9 @@ exports.register = async (req, res, next) => {
     }
 }
 
+// Description: This function logs in a user
+// Route: POST /api/auth/login
+// Access: Public
 exports.login = async (req, res, next) => {
     const {email, password} = req.body;
     if (!email || !password) {
@@ -78,7 +84,7 @@ exports.login = async (req, res, next) => {
                 _id: user._id,
                 user_type: user.user_type,
             }
-            const token = jwt.sign(userObject, process.env.JWT_SECRET, {expiresIn: '1h'});
+            const token = generateToken(user._id);
             res.status(200).json({message: 'Login successful', token: token, user: userObject});
         })
     } catch (err) {
@@ -88,4 +94,11 @@ exports.login = async (req, res, next) => {
             error: err.message,
         })
     }
+}
+
+// Description: This function generates a token
+const generateToken = (id) => {
+    return jwt.sign({id}, process.env.JWT_SECRET, {
+        expiresIn: '30d'
+    });
 }

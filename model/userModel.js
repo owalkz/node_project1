@@ -1,5 +1,21 @@
-const Mongoose = require('mongoose');
-const UserSchema = new Mongoose.Schema({
+const mongoose = require('mongoose');
+
+const FreelancerDataSchema = new mongoose.Schema({
+    rate: {
+        type: Number,
+        required: true,
+    },
+    bio: {
+        type: String,
+        required: true,
+    },
+    phone_number: {
+        type: String,
+        required: true,
+    }
+}, { _id: false }); // _id: false to prevent creation of a separate _id for this subdocument
+
+const UserSchema = new mongoose.Schema({
     username: {
         type: String,
         required: true,
@@ -21,8 +37,12 @@ const UserSchema = new Mongoose.Schema({
     user_data: {
         type: Object,
         required: true
+    },
+    freelancer_data: {
+        type: FreelancerDataSchema,
+        required: false // Make it optional if it might not always be present
     }
 });
 
-const User = Mongoose.model('User', UserSchema);
+const User = mongoose.model('User', UserSchema);
 module.exports = User;
