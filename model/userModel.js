@@ -12,6 +12,10 @@ const FreelancerDataSchema = new mongoose.Schema({
     phone_number: {
         type: String,
         required: true,
+    },
+    specialization: {
+        type: String,
+        required: true,
     }
 }, { _id: false }); // _id: false to prevent creation of a separate _id for this subdocument
 

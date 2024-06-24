@@ -29,7 +29,8 @@ const getFreelancers = asyncHandler(async (req, res, next) => {
                 username: freelancer.username,
                 rate: freelancer.freelancer_data.rate,
                 bio: freelancer.freelancer_data.bio,
-                phone_number: freelancer.freelancer_data.phone_number
+                phone_number: freelancer.freelancer_data.phone_number,
+                specialization: freelancer.freelancer_data.specialization
             };
         } else if (freelancer.user_type === 'individual') {
             return {
@@ -50,7 +51,8 @@ const getFreelancers = asyncHandler(async (req, res, next) => {
                 username: freelancer.username,
                 rate: freelancer.freelancer_data.rate,
                 bio: freelancer.freelancer_data.bio,
-                phone_number: freelancer.freelancer_data.phone_number
+                phone_number: freelancer.freelancer_data.phone_number,
+                specialization: freelancer.freelancer_data.specialization
             };
         }
     });

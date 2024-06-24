@@ -13,8 +13,8 @@ const updateProfile = asyncHandler(async (req, res, next) => {
             return res.status(400).json({ message: 'User not found' });
         }
 
-        const { rate, bio, phone_number } = req.body;
-        if (!rate || !bio || !phone_number) {
+        const { rate, bio, phone_number, specialization } = req.body;
+        if (!rate || !bio || !phone_number || !specialization) {
             return res.status(400).json({ message: 'All fields are required' });
         }
 
@@ -22,7 +22,8 @@ const updateProfile = asyncHandler(async (req, res, next) => {
             $set: {
                 'freelancer_data.rate': rate,
                 'freelancer_data.bio': bio,
-                'freelancer_data.phone_number': phone_number
+                'freelancer_data.phone_number': phone_number,
+                'freelancer_data.specialization': specialization,
             }
         };
 
