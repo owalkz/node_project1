@@ -20,7 +20,7 @@ exports.register = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     if (user_type === 'individual') {
         const { first_name, last_name } = user_data[0];
-        const user = User.create({
+        const user = await User.create({
             username,
             email,
             password: hashedPassword,
@@ -36,11 +36,12 @@ exports.register = async (req, res, next) => {
             last_name,
             username,
             email,
-            user_type
+            user_type,
+            _id: user._id
         });
     } else if (user_type === 'business') {
         const { business_name } = user_data[0];
-        const user = User.create({
+        const user = await User.create({
             username,
             email,
             password: hashedPassword,

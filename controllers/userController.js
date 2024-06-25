@@ -84,4 +84,58 @@ const sendMessage = asyncHandler(async (req, res, next) => {
     });
 });
 
-module.exports = { getFreelancers, sendMessage };
+const getFreelancer = asyncHandler(async (req, res, next) => {
+    const id = req.params.id;
+    if (!id) {
+        return res.status(400).json({message: 'Freelancer ID is required'});
+    }
+    const freelancer = await User.findById(id);
+    if (!freelancer) {
+        return res.status(404).json({message: 'Freelancer not found'});
+    }
+    if (freelancer.freelancer_data && freelancer.user_type === 'business') {
+        return res.status(200).json({
+            user_type: freelancer.user_type,
+            _id: freelancer._id,
+            first_name: freelancer.user_data.first_name,
+            last_name: freelancer.user_data.last_name,
+            email: freelancer.email,
+            username: freelancer.username,
+            rate: freelancer.freelancer_data.rate,
+            bio: freelancer.freelancer_data.bio,
+            phone_number: freelancer.freelancer_data.phone_number,
+            specialization: freelancer.freelancer_data.specialization    
+        });
+    } else if (!freelancer.freelancer_data && freelancer.user_type === 'business') {
+        return res.status(200).json({
+            user_type: freelancer.user_type,
+            _id: freelancer._id,
+            business_name: freelancer.user_data.business_name,
+            email: freelancer.email,
+        });
+    } else if (freelancer.freelancer_data && freelancer.user_type === 'individual') {
+        return res.status(200).json({
+            user_type: freelancer.user_type,
+            _id: freelancer._id,
+            first_name: freelancer.user_data.first_name,
+            last_name: freelancer.user_data.last_name,
+            email: freelancer.email,
+            username: freelancer.username,
+            rate: freelancer.freelancer_data.rate,
+            bio: freelancer.freelancer_data.bio,
+            phone_number: freelancer.freelancer_data.phone_number,
+            specialization: freelancer.freelancer_data.specialization
+        });
+    } else if (!freelancer.freelancer_data && freelancer.user_type === 'individual') {
+        return res.status(200).json({
+            user_type: freelancer.user_type,
+            _id: freelancer._id,
+            first_name: freelancer.user_data.first_name,
+            last_name: freelancer.user_data.last_name,
+            email: freelancer.email,
+            username: freelancer.username
+        });
+    }
+});
+
+module.exports = { getFreelancers, sendMessage, getFreelancer };
