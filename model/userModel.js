@@ -20,10 +20,6 @@ const FreelancerDataSchema = new mongoose.Schema({
 }, { _id: false }); // _id: false to prevent creation of a separate _id for this subdocument
 
 const UserSchema = new mongoose.Schema({
-    username: {
-        type: String,
-        required: true,
-    },
     email: {
         type: String,
         required: true,
@@ -33,10 +29,6 @@ const UserSchema = new mongoose.Schema({
         type: String,
         minlength: 8,
         required: true
-    },
-    user_type: {
-        type: String,
-        required: true,
     },
     user_data: {
         type: Object,

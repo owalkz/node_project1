@@ -12,49 +12,19 @@ const getFreelancers = asyncHandler(async (req, res, next) => {
       // Remove the password field from the freelancer object
       delete freelancer.password;
 
-      if (freelancer.user_type === "business" && !freelancer.freelancer_data) {
+      if (!freelancer.freelancer_data) {
         return {
-          user_type: freelancer.user_type,
-          _id: freelancer._id,
-          business_name: freelancer.user_data.business_name,
-          email: freelancer.email,
-          username: freelancer.username,
-        };
-      } else if (
-        freelancer.user_type === "business" &&
-        freelancer.freelancer_data
-      ) {
-        return {
-          user_type: freelancer.user_type,
-          _id: freelancer._id,
-          business_name: freelancer.user_data.business_name,
-          email: freelancer.email,
-          username: freelancer.username,
-          rate: freelancer.freelancer_data.rate,
-          bio: freelancer.freelancer_data.bio,
-          phone_number: freelancer.freelancer_data.phone_number,
-          specialization: freelancer.freelancer_data.specialization,
-        };
-      } else if (freelancer.user_type === "individual") {
-        return {
-          user_type: freelancer.user_type,
           _id: freelancer._id,
           first_name: freelancer.user_data.first_name,
           last_name: freelancer.user_data.last_name,
           email: freelancer.email,
-          username: freelancer.username,
         };
-      } else if (
-        freelancer.user_type === "individual" &&
-        freelancer.freelancer_data
-      ) {
+      } else if (freelancer.freelancer_data) {
         return {
-          user_type: freelancer.user_type,
           _id: freelancer._id,
           first_name: freelancer.user_data.first_name,
           last_name: freelancer.user_data.last_name,
           email: freelancer.email,
-          username: freelancer.username,
           rate: freelancer.freelancer_data.rate,
           bio: freelancer.freelancer_data.bio,
           phone_number: freelancer.freelancer_data.phone_number,
@@ -99,7 +69,7 @@ const getFreelancer = asyncHandler(async (req, res, next) => {
   if (!freelancer) {
     return res.status(404).json({ message: "Freelancer not found" });
   }
-  if (freelancer.freelancer_data && freelancer.user_type === "business") {
+  if (freelancer.freelancer_data) {
     return res.status(200).json({
       user_type: freelancer.user_type,
       _id: freelancer._id,
@@ -112,36 +82,7 @@ const getFreelancer = asyncHandler(async (req, res, next) => {
       phone_number: freelancer.freelancer_data.phone_number,
       specialization: freelancer.freelancer_data.specialization,
     });
-  } else if (
-    !freelancer.freelancer_data &&
-    freelancer.user_type === "business"
-  ) {
-    return res.status(200).json({
-      user_type: freelancer.user_type,
-      _id: freelancer._id,
-      business_name: freelancer.user_data.business_name,
-      email: freelancer.email,
-    });
-  } else if (
-    freelancer.freelancer_data &&
-    freelancer.user_type === "individual"
-  ) {
-    return res.status(200).json({
-      user_type: freelancer.user_type,
-      _id: freelancer._id,
-      first_name: freelancer.user_data.first_name,
-      last_name: freelancer.user_data.last_name,
-      email: freelancer.email,
-      username: freelancer.username,
-      rate: freelancer.freelancer_data.rate,
-      bio: freelancer.freelancer_data.bio,
-      phone_number: freelancer.freelancer_data.phone_number,
-      specialization: freelancer.freelancer_data.specialization,
-    });
-  } else if (
-    !freelancer.freelancer_data &&
-    freelancer.user_type === "individual"
-  ) {
+  } else if (!freelancer.freelancer_data) {
     return res.status(200).json({
       user_type: freelancer.user_type,
       _id: freelancer._id,

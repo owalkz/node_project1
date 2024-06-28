@@ -6,8 +6,8 @@ const jwt = require("jsonwebtoken");
 // Route: POST /api/auth/register
 // Access: Public
 exports.register = async (req, res, next) => {
-  const { username, email, password, user_type, user_data = {} } = req.body;
-  if (!username || !email || !password || !user_type || !user_data) {
+  const { email, password, user_data = {} } = req.body;
+  if (!email || !password || !user_data) {
     return res.status(400).json({ message: "All fields are required" });
   }
   if (password.length < 8) {
@@ -20,47 +20,22 @@ exports.register = async (req, res, next) => {
     return res.status(400).json({ message: "Email already exists" });
   }
   const hashedPassword = await bcrypt.hash(password, 10);
-  if (user_type === "individual") {
-    const { first_name, last_name } = user_data[0];
-    const user = await User.create({
-      username,
-      email,
-      password: hashedPassword,
-      user_type,
-      user_data: {
-        first_name,
-        last_name,
-      },
-    });
-    return res.status(201).json({
-      message: "User created successfully",
+  const { first_name, last_name } = user_data[0];
+  const user = await User.create({
+    email,
+    password: hashedPassword,
+    user_data: {
       first_name,
       last_name,
-      username,
-      email,
-      user_type,
-      id: user._id,
-      user,
-    });
-  } else if (user_type === "business") {
-    const { business_name } = user_data[0];
-    const user = User.create({
-      username,
-      email,
-      password: hashedPassword,
-      user_type,
-      user_data: {
-        business_name,
-      },
-    });
-    return res.status(201).json({
-      message: "User created successfully",
-      business_name,
-      username,
-      email,
-      user_type,
-    });
-  }
+    },
+  });
+  return res.status(201).json({
+    message: "User created successfully",
+    first_name,
+    last_name,
+    email,
+    id: user._id,
+  });
 };
 
 // Description: This function logs in a user
@@ -88,7 +63,6 @@ exports.login = async (req, res, next) => {
       const userObject = {
         email: user.email,
         _id: user._id,
-        user_type: user.user_type,
       };
       const token = generateToken(user._id);
       res
