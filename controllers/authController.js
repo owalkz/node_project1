@@ -65,9 +65,10 @@ exports.login = async (req, res, next) => {
         _id: user._id,
       };
       const token = generateToken(user._id);
+      res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
       res
         .status(200)
-        .json({ message: "Login successful", token: token, user: userObject });
+        .json({ message: "Login successful", user: userObject });
     });
   } catch (err) {
     console.log(err);
@@ -78,9 +79,17 @@ exports.login = async (req, res, next) => {
   }
 };
 
+// Description: This function logs out a user
+// Route: POST /api/auth/logout
+// Access: Public
+exports.logout = async (req, res, next) => {
+  res.clearCookie('token');
+  res.status(200).json({ message: "Logout successful" });
+};
+
 // Description: This function generates a token
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: "30d",
+    expiresIn: "1h",
   });
 };
