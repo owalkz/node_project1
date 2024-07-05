@@ -94,4 +94,38 @@ const getFreelancer = asyncHandler(async (req, res, next) => {
   }
 });
 
-module.exports = { getFreelancers, sendMessage, getFreelancer };
+const getSpecializations = asyncHandler(async (req, res, next) => {
+  const freelancers = await User.find();
+  const specializations = freelancers.map((freelancer) => {
+    if (freelancer.freelancer_data) {
+      return freelancer.freelancer_data.specialization;
+    }
+  });
+  const unique_specializations = [...new Set(specializations.flat())];
+  return res.status(200).json(unique_specializations);
+});
+
+const getCommonSpecialization = asyncHandler(async (req, res, next) => {
+  const freelancers = await User.find();
+  const specializations = freelancers.map((freelancer) => {
+    if (freelancer.freelancer_data) {
+      return freelancer.freelancer_data.specialization;
+    }
+  });
+  const specializationCounts = specializations.reduce((acc, specialization) => {
+    acc[specialization] = (acc[specialization] || 0) + 1;
+    return acc;
+  }, {});
+  const maxCount = Math.max(...Object.values(specializationCounts));
+  const mostCommonSpecializations = Object.keys(specializationCounts).filter(
+    (specialization) => specializationCounts[specialization] === maxCount
+  );
+  const matchingFreelancers = freelancers.filter((freelancer) => {
+    if (freelancer.freelancer_data) {
+      return mostCommonSpecializations.includes(freelancer.freelancer_data.specialization);
+    }
+  })
+  return res.status(200).json(matchingFreelancers);
+});
+
+module.exports = { getFreelancers, sendMessage, getFreelancer, getSpecializations, getCommonSpecialization };

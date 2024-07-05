@@ -4,31 +4,31 @@ const jwt = require('jsonwebtoken');
 const Admin = require('../model/adminModel');
 
 const adminRegister = asyncHandler(async (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password) {
+    const { email, password } = req.body;
+    if (!email || !password) {
         return res.status(400).json({message: 'All fields are required'});
     };
-    const adminExists = await Admin.findOne({ username });
+    const adminExists = await Admin.findOne({ email });
     if (adminExists) {
         return res.status(400).json({message: 'Admin already exists'});
     };
     const hashedPassword = await bcrypt.hash(password, 10);
     const admin = await Admin.create({
-        username,
+        email,
         password: hashedPassword
     });
     return res.status(201).json({
         message: 'Admin created successfully',
-        username: admin.username
+        email: admin.email
     });
 });
 
 const adminLogin = asyncHandler(async (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password) {
+    const { email, password } = req.body;
+    if (!email || !password) {
         return res.status(400).json({message: 'All fields are required'});
     }
-    const admin = await Admin.findOne({username});
+    const admin = await Admin.findOne({email});
     if (!admin) {
         return res.status(400).json({message: 'Invalid credentials'});
     }
@@ -36,10 +36,10 @@ const adminLogin = asyncHandler(async (req, res) => {
     if (!passwordMatch) {
         return res.status(400).json({message: 'Invalid credentials'});
     }
-    const token = jwt.sign({id: admin._id}, process.env.JWT_SECRET, {expiresIn: '30d'});
+    const token = jwt.sign({id: admin._id}, process.env.JWT_SECRET, {expiresIn: '1h'});
+    res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
     return res.status(200).json({
         message: 'Admin logged in successfully',
-        token
     });
 });
 
