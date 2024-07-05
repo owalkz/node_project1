@@ -65,7 +65,7 @@ exports.login = async (req, res, next) => {
         _id: user._id,
       };
       const token = generateToken(user._id);
-      res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+      res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Strict' });
       res
         .status(200)
         .json({ message: "Login successful", user: userObject });
