@@ -60,15 +60,19 @@ exports.login = async (req, res, next) => {
       if (!isMatch) {
         return res.status(400).json({ message: "Invalid credentials" });
       }
+      const token = generateToken(user._id);
       const userObject = {
         email: user.email,
         _id: user._id,
+        token,
       };
-      const token = generateToken(user._id);
-      res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Strict', maxAge: 30 * 24 * 60 * 60 * 1000 });
-      res
-        .status(200)
-        .json({ message: "Login successful", user: userObject });
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+      });
+      res.status(200).json({ message: "Login successful", user: userObject });
     });
   } catch (err) {
     console.log(err);
@@ -83,7 +87,7 @@ exports.login = async (req, res, next) => {
 // Route: POST /api/auth/logout
 // Access: Public
 exports.logout = async (req, res, next) => {
-  res.clearCookie('token');
+  res.clearCookie("token");
   res.status(200).json({ message: "Logout successful" });
 };
 

@@ -122,10 +122,18 @@ const getCommonSpecialization = asyncHandler(async (req, res, next) => {
   );
   const matchingFreelancers = freelancers.filter((freelancer) => {
     if (freelancer.freelancer_data) {
-      return mostCommonSpecializations.includes(freelancer.freelancer_data.specialization);
+      return mostCommonSpecializations.includes(
+        freelancer.freelancer_data.specialization
+      );
     }
-  })
+  });
   return res.status(200).json(matchingFreelancers);
 });
 
-module.exports = { getFreelancers, sendMessage, getFreelancer, getSpecializations, getCommonSpecialization };
+module.exports = {
+  getFreelancers,
+  sendMessage,
+  getFreelancer,
+  getSpecializations,
+  getCommonSpecialization,
+};
