@@ -66,12 +66,12 @@ exports.login = async (req, res, next) => {
         _id: user._id,
         token,
       };
-      res.cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict",
-        maxAge: 30 * 24 * 60 * 60 * 1000,
-      });
+      // res.cookie("token", token, {
+      //   httpOnly: true,
+      //   secure: process.env.NODE_ENV === "production",
+      //   sameSite: "Strict",
+      //   maxAge: 30 * 24 * 60 * 60 * 1000,
+      // });
       res.status(200).json({ message: "Login successful", user: userObject });
     });
   } catch (err) {
@@ -87,13 +87,13 @@ exports.login = async (req, res, next) => {
 // Route: POST /api/auth/logout
 // Access: Public
 exports.logout = async (req, res, next) => {
-  res.clearCookie("token");
+  // res.clearCookie("token");
   res.status(200).json({ message: "Logout successful" });
 };
 
 // Description: This function generates a token
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: "1h",
+    expiresIn: "30d",
   });
 };
