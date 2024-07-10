@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const dotenv = require("dotenv")
 const app = express();
 // const cookieParser = require("cookie-parser");
 const corsOptions = {
@@ -8,13 +9,14 @@ const corsOptions = {
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
+dotenv.config();
 // app.use(cookieParser());
 app.use(express.json());
 app.use(cors(corsOptions));
-const PORT = 5000;
-const connectDB = require("./db");
+const PORT = process.env.PORT;
+const connectDB = require("../freelance/config/db");
 connectDB();
-app.listen(PORT, () => console.log("Server connected to port ${PORT}"));
+app.listen(PORT, () => console.log(`Server connected to port ${PORT}`));
 
 process.on("UnhandledRejection", (err) => {
   console.log("An error occurred: ${err.message}");

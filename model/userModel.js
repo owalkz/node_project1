@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
 const FreelancerDataSchema = new mongoose.Schema(
   {
@@ -41,7 +42,19 @@ const UserSchema = new mongoose.Schema({
     type: FreelancerDataSchema,
     required: false, // Make it optional if it might not always be present
   },
+  resetPasswordToken: {
+    type: String,
+    required: false,
+  },
+  resetPasswordExpiresIn: {
+    type: Date,
+    required: false,
+  },
 });
+
+UserSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
 
 const User = mongoose.model("User", UserSchema);
 module.exports = User;
