@@ -14,7 +14,7 @@ dotenv.config();
 app.use(express.json());
 app.use(cors(corsOptions));
 const PORT = process.env.PORT;
-const connectDB = require("../freelance/config/db");
+const connectDB = require("../node_project1/config/db");
 connectDB();
 app.listen(PORT, () => console.log(`Server connected to port ${PORT}`));
 

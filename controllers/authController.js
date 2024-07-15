@@ -2,7 +2,7 @@ const User = require("../model/userModel");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
-const nodemailer = require("nodemailer");
+const { transporter, sendEmail, mailOptions } = require("../utils/sendEmail");
 
 // Description: This function registers a new user
 // Route: POST /api/auth/register
@@ -72,7 +72,6 @@ exports.login = async (req, res, next) => {
       res.status(200).json({ message: "Login successful", user: userObject });
     }
   } catch (err) {
-    console.log(err);
     res.status(401).json({
       message: "Login not successful",
       error: err.message,
@@ -110,8 +109,7 @@ exports.forgotPassword = async (req, res, next) => {
   user.resetPasswordToken = resetToken;
   user.resetPasswordExpiresIn = Date.now() + 3600000;
   await user.save();
-  console.log(user);
-  const resetURL = `http://localhost:5000/api/auth/reset-password/${resetToken}`;
+  const resetURL = `http://localhost:5173/reset-password/`;
   mailOptions.text = `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
                    Please click on the following link, or paste this into your browser to complete the process:\n\n
                    ${resetURL}\n\n
@@ -122,7 +120,9 @@ exports.forgotPassword = async (req, res, next) => {
   if (!emailSent) {
     throw new Error("Error sending email");
   }
-  return res.status(200).json({ message: "Email sent successfully" });
+  return res
+    .status(200)
+    .json({ message: "Email sent successfully", resetToken });
 };
 
 // Description: This function allows a user with a valid token to reset their password
@@ -136,7 +136,6 @@ exports.resetPassword = async (req, res, next) => {
       resetPasswordToken: resetToken,
       resetPasswordExpiresIn: { $gt: Date.now() },
     });
-    console.log(user);
     if (!user) {
       return res
         .status(400)
@@ -153,34 +152,5 @@ exports.resetPassword = async (req, res, next) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
-  }
-};
-
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false, // Use `true` for port 465, `false` for all other ports
-  auth: {
-    user: process.env.APP_USER,
-    pass: process.env.APP_PASSWORD,
-  },
-});
-
-const mailOptions = {
-  from: {
-    name: "DevConnect",
-    address: process.env.APP_USER,
-  },
-};
-
-const sendEmail = async (transporter, mailOptions) => {
-  try {
-    await transporter.sendMail(mailOptions);
-    console.log("Email sent successfully");
-    return 1;
-    return;
-  } catch (error) {
-    return "";
   }
 };

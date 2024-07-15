@@ -19,6 +19,14 @@ const FreelancerDataSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    location: {
+      type: String,
+      required: true,
+    },
+    jobType: {
+      type: String,
+      required: true,
+    },
   },
   { _id: false }
 ); // _id: false to prevent creation of a separate _id for this subdocument

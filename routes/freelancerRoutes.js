@@ -4,9 +4,11 @@ const protect = require("../middleware/authMiddleware");
 const {
   updateProfile,
   viewMessages,
+  deleteAccount,
 } = require("../controllers/freelancerController");
 
 router.put("/update", protect, updateProfile);
 router.get("/viewmessages", protect, viewMessages);
+router.post("/delete", protect, deleteAccount);
 
 module.exports = router;
