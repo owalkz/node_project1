@@ -29,6 +29,8 @@ const getFreelancers = asyncHandler(async (req, res, next) => {
           bio: freelancer.freelancer_data.bio,
           phone_number: freelancer.freelancer_data.phone_number,
           specialization: freelancer.freelancer_data.specialization,
+          location: freelancer.freelancer_data.location,
+          jobType: freelancer.freelancer_data.jobType,
         };
       }
     });
@@ -81,6 +83,8 @@ const getFreelancer = asyncHandler(async (req, res, next) => {
       bio: freelancer.freelancer_data.bio,
       phone_number: freelancer.freelancer_data.phone_number,
       specialization: freelancer.freelancer_data.specialization,
+      location: freelancer.freelancer_data.location,
+      jobType: freelancer.freelancer_data.jobType,
     });
   } else if (!freelancer.freelancer_data) {
     return res.status(200).json({
