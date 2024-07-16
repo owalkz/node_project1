@@ -4,7 +4,7 @@ const dotenv = require("dotenv")
 const app = express();
 // const cookieParser = require("cookie-parser");
 const corsOptions = {
-  origin: "http://localhost:5173", // Your frontend URL
+  origin: process.env.CLIENT_URL, // Your frontend URL
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -14,7 +14,7 @@ dotenv.config();
 app.use(express.json());
 app.use(cors(corsOptions));
 const PORT = process.env.PORT;
-const connectDB = require("../node_project1/config/db");
+const connectDB = require("./config/db");
 connectDB();
 app.listen(PORT, () => console.log(`Server connected to port ${PORT}`));
 
