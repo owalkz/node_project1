@@ -37,14 +37,11 @@ const adminLogin = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "Invalid credentials" });
   }
   const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, {
-    expiresIn: "1h",
-  });
-  res.cookie("token", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    expiresIn: "30d",
   });
   return res.status(200).json({
     message: "Admin logged in successfully",
+    token,
   });
 });
 

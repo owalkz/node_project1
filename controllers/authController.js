@@ -70,6 +70,10 @@ exports.login = async (req, res, next) => {
         token,
       };
       res.status(200).json({ message: "Login successful", user: userObject });
+    } else {
+      res
+        .status(422)
+        .json({ message: "Invalid credentials, please try again!" });
     }
   } catch (err) {
     res.status(401).json({
@@ -109,7 +113,7 @@ exports.forgotPassword = async (req, res, next) => {
   user.resetPasswordToken = resetToken;
   user.resetPasswordExpiresIn = Date.now() + 3600000;
   await user.save();
-  const resetURL = `http://localhost:5173/reset-password/`;
+  const resetURL = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
   mailOptions.text = `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
                    Please click on the following link, or paste this into your browser to complete the process:\n\n
                    ${resetURL}\n\n
@@ -120,9 +124,7 @@ exports.forgotPassword = async (req, res, next) => {
   if (!emailSent) {
     throw new Error("Error sending email");
   }
-  return res
-    .status(200)
-    .json({ message: "Email sent successfully", resetToken });
+  return res.status(200).json({ message: "Email sent successfully" });
 };
 
 // Description: This function allows a user with a valid token to reset their password
