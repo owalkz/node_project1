@@ -4,7 +4,7 @@ const dotenv = require("dotenv");
 const app = express();
 // const cookieParser = require("cookie-parser");
 const corsOptions = {
-  origin: [process.env.CLIENT_URL, "http://localhost:5137"], // Your frontend URL
+  origin: [process.env.CLIENT_URL, "http://localhost:5173"], // Your frontend URL
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
