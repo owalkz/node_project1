@@ -9,6 +9,6 @@ const {
 
 router.put("/update", protect, updateProfile);
 router.get("/viewmessages", protect, viewMessages);
-router.post("/delete", protect, deleteAccount);
+router.post("/delete/:id", protect, deleteAccount);
 
 module.exports = router;

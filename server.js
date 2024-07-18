@@ -1,10 +1,10 @@
 const express = require("express");
 const cors = require("cors");
-const dotenv = require("dotenv")
+const dotenv = require("dotenv");
 const app = express();
 // const cookieParser = require("cookie-parser");
 const corsOptions = {
-  origin: process.env.CLIENT_URL, // Your frontend URL
+  origin: [process.env.CLIENT_URL, "http://localhost:5137"], // Your frontend URL
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],

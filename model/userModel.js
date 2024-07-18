@@ -50,14 +50,6 @@ const UserSchema = new mongoose.Schema({
     type: FreelancerDataSchema,
     required: false, // Make it optional if it might not always be present
   },
-  resetPasswordToken: {
-    type: String,
-    required: false,
-  },
-  resetPasswordExpiresIn: {
-    type: Date,
-    required: false,
-  },
 });
 
 UserSchema.methods.matchPassword = async function (enteredPassword) {

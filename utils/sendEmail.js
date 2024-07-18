@@ -1,34 +1,34 @@
 const nodemailer = require("nodemailer");
+const dotenv = require("dotenv");
+const path = require("path");
+const Mail = require("nodemailer/lib/mailer");
+dotenv.config();
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false, // Use `true` for port 465, `false` for all other ports
-  auth: {
-    user: process.env.APP_USER,
-    pass: process.env.APP_PASSWORD,
-  },
-});
-
-const mailOptions = {
-  from: {
-    name: "DevConnect",
-    address: process.env.APP_USER,
-  },
-};
-
-const sendEmail = async (transporter, mailOptions) => {
+async function sendMail(email, subject, html) {
   try {
-    await transporter.sendMail(mailOptions);
-    return 1;
-  } catch (error) {
-    return "";
+    const transport = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
+      secure: true,
+      auth: { user: process.env.APP_USER, pass: process.env.APP_PASSWORD },
+    });
+    await transport.sendMail({
+      from: `GigIt - ${process.env.APP_USER}`,
+      to: email,
+      subject,
+      html,
+      attachments: [
+        {
+          filename: "logo.jpg",
+          path: path.join(__dirname, "mail", "logo.jpg"),
+          cid: "companyLogo",
+        },
+      ],
+    });
+    return true;
+  } catch (err) {
+    console.log(err);
   }
-};
+}
 
-module.exports = {
-  transporter,
-  mailOptions,
-  sendEmail,
-};
+module.exports = sendMail;

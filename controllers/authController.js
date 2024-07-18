@@ -1,12 +1,9 @@
 const User = require("../model/userModel");
 const bcrypt = require("bcryptjs");
-const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
-const { transporter, sendEmail, mailOptions } = require("../utils/sendEmail");
+const sendEmail = require("../utils/sendEmail");
+const fs = require("fs");
 
-// Description: This function registers a new user
-// Route: POST /api/auth/register
-// Access: Public
 exports.register = async (req, res, next) => {
   const { email, password, user_data = {} } = req.body;
   if (!email || !password || !user_data) {
@@ -17,34 +14,50 @@ exports.register = async (req, res, next) => {
       .status(400)
       .json({ message: "Password must be at least 8 characters long" });
   }
-  const email_exists = await User.findOne({ email });
-  if (email_exists) {
-    return res.status(400).json({ message: "Email already exists" });
+  try {
+    const email_exists = await User.findOne({ email });
+    if (email_exists) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
+
+    const { first_name, last_name } = user_data[0];
+    const templateString = fs.readFileSync("./utils/mail/welcome.html", "utf8");
+    const emailContent = templateString
+      .replace("${name}", first_name)
+      .replace("${loginLink}", `${process.env.CLIENT_URL}/login`);
+
+    const emailSent = await sendEmail(email, "Welcome to gigit", emailContent);
+    if (!emailSent) {
+      return res.status(400).json({ message: "Invalid email" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await User.create({
+      email,
+      password: hashedPassword,
+      user_data: {
+        first_name,
+        last_name,
+      },
+    });
+    if (!user) {
+      return res
+        .status(400)
+        .json({ message: "Could not create user with the given data" });
+    }
+
+    // Convert the user document to a plain object and remove the password field
+    const { password: _, ...userWithoutPassword } = user.toObject();
+
+    return res.status(201).json({
+      message: "User created successfully",
+      user: userWithoutPassword,
+    });
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ message: "Server error", error: err.message });
   }
-  const { first_name, last_name } = user_data[0];
-  mailOptions.to = email;
-  mailOptions.text = `${first_name}, welcome to DevConnect. We're glad to have you on board!`;
-  mailOptions.subject = `Welcome to DevConnect`;
-  const emailSent = await sendEmail(transporter, mailOptions);
-  if (!emailSent) {
-    return res.status(400).json({ message: "Invalid email" });
-  }
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const user = await User.create({
-    email,
-    password: hashedPassword,
-    user_data: {
-      first_name,
-      last_name,
-    },
-  });
-  return res.status(201).json({
-    message: "User created successfully",
-    first_name,
-    last_name,
-    email,
-    id: user._id,
-  });
 };
 
 // Description: This function logs in a user
@@ -63,13 +76,18 @@ exports.login = async (req, res, next) => {
         .json({ message: "Invalid credentials, please try again!" });
     }
     if (await user.matchPassword(password)) {
-      const token = generateToken(user._id);
-      const userObject = {
-        email: user.email,
-        _id: user._id,
-        token,
-      };
-      res.status(200).json({ message: "Login successful", user: userObject });
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+        expiresIn: "1d",
+      });
+
+      // Destructure user object to exclude the password
+      const { password, ...userWithoutPassword } = user.toObject();
+
+      res.status(200).json({
+        message: "Login successful",
+        user: userWithoutPassword,
+        token: token,
+      });
     } else {
       res
         .status(422)
@@ -90,13 +108,6 @@ exports.logout = async (req, res, next) => {
   res.status(200).json({ message: "Logout successful" });
 };
 
-// Description: This function generates a token
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: "30d",
-  });
-};
-
 // Description: This function sends an email with a password reset link to a user
 // Route: POST /api/auth/forgot-password
 // Access: Public
@@ -109,20 +120,24 @@ exports.forgotPassword = async (req, res, next) => {
   if (!user) {
     return res.status(404).json({ message: "User not found!" });
   }
-  const resetToken = crypto.randomBytes(20).toString("hex");
-  user.resetPasswordToken = resetToken;
-  user.resetPasswordExpiresIn = Date.now() + 3600000;
-  await user.save();
-  const resetURL = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
-  mailOptions.text = `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
-                   Please click on the following link, or paste this into your browser to complete the process:\n\n
-                   ${resetURL}\n\n
-                   If you did not request this, please ignore this email and your password will remain unchanged.\n`;
-  mailOptions.subject = "Password Reset Request";
-  mailOptions.to = email;
-  const emailSent = await sendEmail(transporter, mailOptions);
+  const resetToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    expiresIn: "10m",
+  });
+  const resetURL = `${process.env.CLIENT_URL}/auth/reset-password/${resetToken}`;
+  const templateString = fs.readFileSync(
+    "./utils/mail/resetPassword.html",
+    "utf8"
+  );
+  const emailContent = templateString
+    .replace("${name}", user.user_data.first_name)
+    .replace("${resetLink}", resetURL);
+  const emailSent = await sendEmail(
+    email,
+    "Password Reset Request",
+    emailContent
+  );
   if (!emailSent) {
-    throw new Error("Error sending email");
+    return res.status(400).json({ message: "Invalid email" });
   }
   return res.status(200).json({ message: "Email sent successfully" });
 };
@@ -134,22 +149,16 @@ exports.resetPassword = async (req, res, next) => {
   const resetToken = req.params.id;
   const { password } = req.body;
   try {
-    const user = await User.findOne({
-      resetPasswordToken: resetToken,
-      resetPasswordExpiresIn: { $gt: Date.now() },
-    });
+    const decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
     if (!user) {
       return res
         .status(400)
         .json({ message: "Password reset token is invalid or has expired" });
     }
-
     const hashedPassword = await bcrypt.hash(password, 10);
     user.password = hashedPassword;
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpires = undefined;
     await user.save();
-
     res.status(200).json({ message: "Password has been reset" });
   } catch (error) {
     console.error(error);
