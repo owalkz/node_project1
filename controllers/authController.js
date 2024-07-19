@@ -5,7 +5,7 @@ const sendEmail = require("../utils/sendEmail");
 const fs = require("fs");
 
 exports.register = async (req, res, next) => {
-  const { email, password, first_name, last_name = {} } = req.body;
+  const { email, password, first_name, last_name } = req.body;
   if (!email || !password || !first_name || !last_name) {
     return res.status(400).json({ message: "All fields are required" });
   }
