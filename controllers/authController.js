@@ -5,8 +5,8 @@ const sendEmail = require("../utils/sendEmail");
 const fs = require("fs");
 
 exports.register = async (req, res, next) => {
-  const { email, password, user_data = {} } = req.body;
-  if (!email || !password || !user_data) {
+  const { email, password, first_name, last_name = {} } = req.body;
+  if (!email || !password || !first_name || !last_name) {
     return res.status(400).json({ message: "All fields are required" });
   }
   if (password.length < 8) {
@@ -19,8 +19,6 @@ exports.register = async (req, res, next) => {
     if (email_exists) {
       return res.status(400).json({ message: "Email already exists" });
     }
-
-    const { first_name, last_name } = user_data[0];
     const templateString = fs.readFileSync("./utils/mail/welcome.html", "utf8");
     const emailContent = templateString
       .replace("${name}", first_name)
@@ -30,15 +28,12 @@ exports.register = async (req, res, next) => {
     if (!emailSent) {
       return res.status(400).json({ message: "Invalid email" });
     }
-
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({
       email,
       password: hashedPassword,
-      user_data: {
-        first_name,
-        last_name,
-      },
+      first_name,
+      last_name,
     });
     if (!user) {
       return res
@@ -49,9 +44,14 @@ exports.register = async (req, res, next) => {
     // Convert the user document to a plain object and remove the password field
     const { password: _, ...userWithoutPassword } = user.toObject();
 
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
+
     return res.status(201).json({
       message: "User created successfully",
       user: userWithoutPassword,
+      token,
     });
   } catch (err) {
     return res
@@ -129,7 +129,7 @@ exports.forgotPassword = async (req, res, next) => {
     "utf8"
   );
   const emailContent = templateString
-    .replace("${name}", user.user_data.first_name)
+    .replace("${name}", user.first_name)
     .replace("${resetLink}", resetURL);
   const emailSent = await sendEmail(
     email,
@@ -160,6 +160,28 @@ exports.resetPassword = async (req, res, next) => {
     user.password = hashedPassword;
     await user.save();
     res.status(200).json({ message: "Password has been reset" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+// Description: This function allows a user with a valid token to reset their password
+// Route: POST /api/auth/reset-password/token
+// Access: Public
+exports.getUserProfile = async (req, res, next) => {
+  const resetToken = req.params.id;
+  const { password } = req.body;
+  try {
+    const decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(400).json({ message: "Access token is invalid" });
+    }
+    const { password, ...userWithoutPassword } = user.toObject();
+    res
+      .status(200)
+      .json({ message: "User profile found!", user: userWithoutPassword });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });

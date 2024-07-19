@@ -29,12 +29,12 @@ const updateProfile = asyncHandler(async (req, res, next) => {
 
     const updateData = {
       $set: {
-        "freelancer_data.rate": rate,
-        "freelancer_data.bio": bio,
-        "freelancer_data.phone_number": phone_number,
-        "freelancer_data.specialization": specialization,
-        "freelancer_data.location": location,
-        "freelancer_data.jobType": jobType,
+        "user.rate": rate,
+        "user.bio": bio,
+        "user.phone_number": phone_number,
+        "user.specialization": specialization,
+        "user.location": location,
+        "user.jobType": jobType,
       },
     };
 
@@ -65,7 +65,7 @@ const deleteAccount = asyncHandler(async (req, res, next) => {
     const templateString = fs.readFileSync("./utils/mail/goodbye.html", "utf8");
     const emailContent = templateString.replace(
       "${name}",
-      user.user_data.first_name
+      user.first_name
     );
     const emailSent = await sendEmail(
       email,

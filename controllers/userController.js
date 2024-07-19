@@ -12,25 +12,26 @@ const getFreelancers = asyncHandler(async (req, res, next) => {
       // Remove the password field from the freelancer object
       delete freelancer.password;
 
-      if (!freelancer.freelancer_data) {
+      if (!freelancer.bio) {
         return {
           _id: freelancer._id,
-          first_name: freelancer.user_data.first_name,
-          last_name: freelancer.user_data.last_name,
+          first_name: freelancer.first_name,
+          last_name: freelancer.last_name,
           email: freelancer.email,
         };
-      } else if (freelancer.freelancer_data) {
+      } else if (freelancer.bio) {
         return {
           _id: freelancer._id,
-          first_name: freelancer.user_data.first_name,
-          last_name: freelancer.user_data.last_name,
+          first_name: freelancer.first_name,
+          last_name: freelancer.last_name,
           email: freelancer.email,
-          rate: freelancer.freelancer_data.rate,
-          bio: freelancer.freelancer_data.bio,
-          phone_number: freelancer.freelancer_data.phone_number,
-          specialization: freelancer.freelancer_data.specialization,
-          location: freelancer.freelancer_data.location,
-          jobType: freelancer.freelancer_data.jobType,
+          rate: freelancer.rate,
+          bio: freelancer.bio,
+          phone_number: freelancer.phone_number,
+          specialization: freelancer.specialization,
+          location: freelancer.location,
+          jobType: freelancer.jobType,
+          verified: freelancer.verified,
         };
       }
     });
@@ -71,29 +72,29 @@ const getFreelancer = asyncHandler(async (req, res, next) => {
   if (!freelancer) {
     return res.status(404).json({ message: "Freelancer not found" });
   }
-  if (freelancer.freelancer_data) {
+  if (freelancer.bio) {
     return res.status(200).json({
       user_type: freelancer.user_type,
       _id: freelancer._id,
-      first_name: freelancer.user_data.first_name,
-      last_name: freelancer.user_data.last_name,
+      first_name: freelancer.first_name,
+      last_name: freelancer.last_name,
       email: freelancer.email,
       username: freelancer.username,
-      rate: freelancer.freelancer_data.rate,
-      bio: freelancer.freelancer_data.bio,
-      phone_number: freelancer.freelancer_data.phone_number,
-      specialization: freelancer.freelancer_data.specialization,
-      location: freelancer.freelancer_data.location,
-      jobType: freelancer.freelancer_data.jobType,
+      rate: freelancer.rate,
+      bio: freelancer.bio,
+      phone_number: freelancer.phone_number,
+      specialization: freelancer.specialization,
+      location: freelancer.location,
+      jobType: freelancer.jobType,
+      verified: freelancer.verified,
     });
-  } else if (!freelancer.freelancer_data) {
+  } else if (!freelancer.bio) {
     return res.status(200).json({
       user_type: freelancer.user_type,
       _id: freelancer._id,
-      first_name: freelancer.user_data.first_name,
-      last_name: freelancer.user_data.last_name,
+      first_name: freelancer.first_name,
+      last_name: freelancer.last_name,
       email: freelancer.email,
-      username: freelancer.username,
     });
   }
 });
@@ -101,8 +102,8 @@ const getFreelancer = asyncHandler(async (req, res, next) => {
 const getSpecializations = asyncHandler(async (req, res, next) => {
   const freelancers = await User.find();
   const specializations = freelancers.map((freelancer) => {
-    if (freelancer.freelancer_data) {
-      return freelancer.freelancer_data.specialization;
+    if (freelancer.specialization) {
+      return freelancer.specialization;
     }
   });
   const unique_specializations = [...new Set(specializations.flat())];
@@ -112,8 +113,8 @@ const getSpecializations = asyncHandler(async (req, res, next) => {
 const getCommonSpecialization = asyncHandler(async (req, res, next) => {
   const freelancers = await User.find();
   const specializations = freelancers.map((freelancer) => {
-    if (freelancer.freelancer_data) {
-      return freelancer.freelancer_data.specialization;
+    if (freelancer.bio) {
+      return freelancer.specialization;
     }
   });
   const specializationCounts = specializations.reduce((acc, specialization) => {
@@ -125,10 +126,8 @@ const getCommonSpecialization = asyncHandler(async (req, res, next) => {
     (specialization) => specializationCounts[specialization] === maxCount
   );
   const matchingFreelancers = freelancers.filter((freelancer) => {
-    if (freelancer.freelancer_data) {
-      return mostCommonSpecializations.includes(
-        freelancer.freelancer_data.specialization
-      );
+    if (freelancer.bio) {
+      return mostCommonSpecializations.includes(freelancer.specialization);
     }
   });
   return res.status(200).json(matchingFreelancers);

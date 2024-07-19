@@ -1,36 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
-const FreelancerDataSchema = new mongoose.Schema(
-  {
-    rate: {
-      type: Number,
-      required: true,
-    },
-    bio: {
-      type: String,
-      required: true,
-    },
-    phone_number: {
-      type: String,
-      required: true,
-    },
-    specialization: {
-      type: String,
-      required: true,
-    },
-    location: {
-      type: String,
-      required: true,
-    },
-    jobType: {
-      type: String,
-      required: true,
-    },
-  },
-  { _id: false }
-); // _id: false to prevent creation of a separate _id for this subdocument
-
 const UserSchema = new mongoose.Schema({
   email: {
     type: String,
@@ -42,13 +12,41 @@ const UserSchema = new mongoose.Schema({
     minlength: 8,
     required: true,
   },
-  user_data: {
-    type: Object,
+  first_name: {
+    type: String,
     required: true,
   },
-  freelancer_data: {
-    type: FreelancerDataSchema,
-    required: false, // Make it optional if it might not always be present
+  last_name: {
+    type: String,
+    required: true,
+  },
+  rate: {
+    type: Number,
+    required: false,
+  },
+  bio: {
+    type: String,
+    required: false,
+  },
+  phone_number: {
+    type: String,
+    required: false,
+  },
+  specialization: {
+    type: String,
+    required: false,
+  },
+  location: {
+    type: String,
+    required: false,
+  },
+  jobType: {
+    type: String,
+    required: false,
+  },
+  verified: {
+    type: Boolean,
+    required: false,
   },
 });
 
