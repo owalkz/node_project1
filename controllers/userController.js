@@ -11,29 +11,19 @@ const getFreelancers = asyncHandler(async (req, res, next) => {
     const cleaned_freelancers = freelancers.map((freelancer) => {
       // Remove the password field from the freelancer object
       delete freelancer.password;
-
-      if (!freelancer.bio) {
-        return {
-          _id: freelancer._id,
-          first_name: freelancer.first_name,
-          last_name: freelancer.last_name,
-          email: freelancer.email,
-        };
-      } else if (freelancer.bio) {
-        return {
-          _id: freelancer._id,
-          first_name: freelancer.first_name,
-          last_name: freelancer.last_name,
-          email: freelancer.email,
-          rate: freelancer.rate,
-          bio: freelancer.bio,
-          phone_number: freelancer.phone_number,
-          specialization: freelancer.specialization,
-          location: freelancer.location,
-          jobType: freelancer.jobType,
-          verified: freelancer.verified,
-        };
-      }
+      return {
+        _id: freelancer._id,
+        first_name: freelancer.first_name,
+        last_name: freelancer.last_name,
+        email: freelancer.email,
+        rate: freelancer.rate,
+        bio: freelancer.bio,
+        phone_number: freelancer.phone_number,
+        specialization: freelancer.specialization,
+        location: freelancer.location,
+        jobType: freelancer.jobType,
+        verified: freelancer.verified,
+      };
     });
     return res.status(200).json(cleaned_freelancers);
   } catch (error) {

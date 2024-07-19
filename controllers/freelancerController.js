@@ -14,37 +14,47 @@ const updateProfile = asyncHandler(async (req, res, next) => {
       return res.status(400).json({ message: "User not found" });
     }
 
-    const { rate, bio, phone_number, specialization, location, jobType } =
-      req.body;
+    const {
+      rate,
+      bio,
+      phone_number,
+      specialization,
+      location,
+      jobType,
+      verified,
+    } = req.body;
     if (
       !rate ||
       !bio ||
       !phone_number ||
       !specialization ||
       !location ||
-      !jobType
+      !jobType ||
+      !verified
     ) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const updateData = {
-      $set: {
-        "user.rate": rate,
-        "user.bio": bio,
-        "user.phone_number": phone_number,
-        "user.specialization": specialization,
-        "user.location": location,
-        "user.jobType": jobType,
-      },
-    };
+    user.rate = rate;
+    user.bio = bio;
+    user.phone_number = phone_number;
+    user.specialization = specialization;
+    user.location = location;
+    user.jobType = jobType;
+    user.verified = verified;
+    const saveDetails = await user.save();
 
-    const profileSet = await User.updateOne({ _id: req.user._id }, updateData);
-    if (profileSet.nModified === 0) {
-      return res.status(400).json({ message: "Profile not set" });
+    if (!saveDetails) {
+      return res
+        .status(400)
+        .json({ message: "Failed to update freelancer profile!" });
     }
+
+    const { password, ...userWithoutPassword } = user.toObject();
 
     res.status(200).json({
       message: "Freelancer profile updated successfully",
+      userWithoutPassword,
     });
   } catch (error) {
     next(error);
@@ -63,10 +73,7 @@ const deleteAccount = asyncHandler(async (req, res, next) => {
   // Assuming user.matchPassword(password) is a method that returns true if the passwords match
   try {
     const templateString = fs.readFileSync("./utils/mail/goodbye.html", "utf8");
-    const emailContent = templateString.replace(
-      "${name}",
-      user.first_name
-    );
+    const emailContent = templateString.replace("${name}", user.first_name);
     const emailSent = await sendEmail(
       email,
       "Goodbye from GigIt",
