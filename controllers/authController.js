@@ -170,15 +170,8 @@ exports.resetPassword = async (req, res, next) => {
 // Route: POST /api/auth/reset-password/token
 // Access: Public
 exports.getUserProfile = async (req, res, next) => {
-  const resetToken = req.params.id;
-  const { password } = req.body;
   try {
-    const decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
-    if (!user) {
-      return res.status(400).json({ message: "Access token is invalid" });
-    }
-    const { password, ...userWithoutPassword } = user.toObject();
+    const { password, ...userWithoutPassword } = req.user.toObject();
     res
       .status(200)
       .json({ message: "User profile found!", user: userWithoutPassword });
