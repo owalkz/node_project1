@@ -14,23 +14,15 @@ const updateProfile = asyncHandler(async (req, res, next) => {
       return res.status(400).json({ message: "User not found" });
     }
 
-    const {
-      rate,
-      bio,
-      phone_number,
-      specialization,
-      location,
-      jobType,
-      verified,
-    } = req.body;
+    const { rate, bio, phone_number, specialization, location, jobType } =
+      req.body;
     if (
       !rate ||
       !bio ||
       !phone_number ||
       !specialization ||
       !location ||
-      !jobType ||
-      !verified
+      !jobType
     ) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -41,7 +33,6 @@ const updateProfile = asyncHandler(async (req, res, next) => {
     user.specialization = specialization;
     user.location = location;
     user.jobType = jobType;
-    user.verified = verified;
     const saveDetails = await user.save();
 
     if (!saveDetails) {
