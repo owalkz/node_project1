@@ -64,6 +64,18 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  skills: [
+    {
+      name: {
+        type: String,
+        required: true,
+      },
+      level: {
+        type: Number,
+        required: true,
+      },
+    },
+  ],
 });
 
 UserSchema.methods.matchPassword = async function (enteredPassword) {

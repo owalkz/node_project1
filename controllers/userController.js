@@ -27,6 +27,7 @@ const getFreelancers = asyncHandler(async (req, res, next) => {
         completedProjects: freelancer.completedProjects,
         linkedinUrl: freelancer.linkedinUrl,
         githubUrl: freelancer.githubUrl,
+        skills: freelancer.skills,
       };
     });
     return res.status(200).json(cleaned_freelancers);
@@ -84,6 +85,7 @@ const getFreelancer = asyncHandler(async (req, res, next) => {
     completedProjects: freelancer.completedProjects,
     linkedinUrl: freelancer.linkedinUrl,
     githubUrl: freelancer.githubUrl,
+    skills: freelancer.skills,
   });
 });
 
