@@ -23,6 +23,10 @@ const getFreelancers = asyncHandler(async (req, res, next) => {
         location: freelancer.location,
         jobType: freelancer.jobType,
         verified: freelancer.verified,
+        experience: freelancer.experience,
+        completedProjects: freelancer.completedProjects,
+        linkedinUrl: freelancer.linkedinUrl,
+        githubUrl: freelancer.githubUrl,
       };
     });
     return res.status(200).json(cleaned_freelancers);
@@ -62,31 +66,25 @@ const getFreelancer = asyncHandler(async (req, res, next) => {
   if (!freelancer) {
     return res.status(404).json({ message: "Freelancer not found" });
   }
-  if (freelancer.bio) {
-    return res.status(200).json({
-      user_type: freelancer.user_type,
-      _id: freelancer._id,
-      first_name: freelancer.first_name,
-      last_name: freelancer.last_name,
-      email: freelancer.email,
-      username: freelancer.username,
-      rate: freelancer.rate,
-      bio: freelancer.bio,
-      phone_number: freelancer.phone_number,
-      specialization: freelancer.specialization,
-      location: freelancer.location,
-      jobType: freelancer.jobType,
-      verified: freelancer.verified,
-    });
-  } else if (!freelancer.bio) {
-    return res.status(200).json({
-      user_type: freelancer.user_type,
-      _id: freelancer._id,
-      first_name: freelancer.first_name,
-      last_name: freelancer.last_name,
-      email: freelancer.email,
-    });
-  }
+  return res.status(200).json({
+    user_type: freelancer.user_type,
+    _id: freelancer._id,
+    first_name: freelancer.first_name,
+    last_name: freelancer.last_name,
+    email: freelancer.email,
+    username: freelancer.username,
+    rate: freelancer.rate,
+    bio: freelancer.bio,
+    phone_number: freelancer.phone_number,
+    specialization: freelancer.specialization,
+    location: freelancer.location,
+    jobType: freelancer.jobType,
+    verified: freelancer.verified,
+    experience: freelancer.experience,
+    completedProjects: freelancer.completedProjects,
+    linkedinUrl: freelancer.linkedinUrl,
+    githubUrl: freelancer.githubUrl,
+  });
 });
 
 const getSpecializations = asyncHandler(async (req, res, next) => {
