@@ -48,6 +48,22 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     required: false,
   },
+  experience: {
+    type: Number,
+    required: false,
+  },
+  completedProjects: {
+    type: Number,
+    required: false,
+  },
+  linkedinUrl: {
+    type: String,
+    required: false,
+  },
+  githubUrl: {
+    type: String,
+    required: false,
+  },
 });
 
 UserSchema.methods.matchPassword = async function (enteredPassword) {

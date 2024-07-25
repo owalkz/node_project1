@@ -14,25 +14,29 @@ const updateProfile = asyncHandler(async (req, res, next) => {
       return res.status(400).json({ message: "User not found" });
     }
 
-    const { rate, bio, phone_number, specialization, location, jobType } =
-      req.body;
-    if (
-      !rate ||
-      !bio ||
-      !phone_number ||
-      !specialization ||
-      !location ||
-      !jobType
-    ) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
+    const {
+      rate = "",
+      bio = "",
+      phone_number = "",
+      specialization = "",
+      location = "",
+      jobType = "",
+      experience = "",
+      completedProjects = "",
+      linkedinUrl = "",
+      githubUrl = "",
+    } = req.body;
 
-    user.rate = rate;
-    user.bio = bio;
-    user.phone_number = phone_number;
-    user.specialization = specialization;
-    user.location = location;
-    user.jobType = jobType;
+    if (rate) user.rate = rate;
+    if (bio) user.bio = bio;
+    if (phone_number) user.phone_number = phone_number;
+    if (specialization) user.specialization = specialization;
+    if (location) user.location = location;
+    if (jobType) user.jobType = jobType;
+    if (experience) user.experience = experience;
+    if (completedProjects) user.completedProjects = completedProjects;
+    if (linkedinUrl) user.linkedinUrl = linkedinUrl;
+    if (githubUrl) user.githubUrl = githubUrl;
     const saveDetails = await user.save();
 
     if (!saveDetails) {
