@@ -38,7 +38,11 @@ const updateProfile = asyncHandler(async (req, res, next) => {
     if (completedProjects) user.completedProjects = completedProjects;
     if (linkedinUrl) user.linkedinUrl = linkedinUrl;
     if (githubUrl) user.githubUrl = githubUrl;
-    if (skills) user.skills.push(skills);
+    if (skills) {
+      for (let i = 0; i < skills.length; i++) {
+        user.skills.push(skills[i]);
+      }
+    }
     const saveDetails = await user.save();
 
     if (!saveDetails) {
