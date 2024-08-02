@@ -26,6 +26,7 @@ const updateProfile = asyncHandler(async (req, res, next) => {
       linkedinUrl = "",
       githubUrl = "",
       skills = [],
+      skillsToDelete = [],
     } = req.body;
 
     if (rate) user.rate = rate;
@@ -38,11 +39,28 @@ const updateProfile = asyncHandler(async (req, res, next) => {
     if (completedProjects) user.completedProjects = completedProjects;
     if (linkedinUrl) user.linkedinUrl = linkedinUrl;
     if (githubUrl) user.githubUrl = githubUrl;
-    if (skills) {
+
+    if (skillsToDelete.length > 0) {
+      user.skills = user.skills.filter(
+        (skill) => !skillsToDelete.includes(skill._id.toString())
+      );
+    }
+
+    if (skills.length > 0) {
       for (let i = 0; i < skills.length; i++) {
-        user.skills.push(skills[i]);
+        const skillIndex = user.skills.findIndex(
+          (curSkill) =>
+            curSkill._id && curSkill._id.toString() === skills[i]._id
+        );
+        if (skillIndex !== -1) {
+          user.skills[skillIndex] = skills[i];
+        } else {
+          let { _id, ...skillWithoutId } = skills[i];
+          user.skills.push(skillWithoutId);
+        }
       }
     }
+
     const saveDetails = await user.save();
 
     if (!saveDetails) {
